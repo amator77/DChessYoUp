@@ -70,4 +70,9 @@ public class HumanPlayer implements Player {
     @Override
     public void clearTT() {
     }
+
+	@Override
+	public boolean isRemotePlayer() {		
+		return false;
+	}
 }

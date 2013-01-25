@@ -230,5 +230,8 @@ public class ComputerPlayer implements Player {
         return (int)Math.ceil(w);
     }
 
-    // FIXME!!! Test Botvinnik-Markoff extension
+	@Override
+	public boolean isRemotePlayer() {
+		return false;
+	}
 }

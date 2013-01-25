@@ -23,6 +23,8 @@ import guibase.GUIInterface;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import chess.ComputerPlayer;
 import chess.Move;
@@ -61,7 +63,7 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     /**
      * Entry point for the GUI version of the chess program.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args){    	
         javax.swing.JApplet theApplet = new AppletGUI();
         theApplet.init();
         javax.swing.JFrame window = new javax.swing.JFrame(ComputerPlayer.engineName);
@@ -357,7 +359,7 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton Backward;
-    private javax.swing.JLabel ChessBoard;
+    private javax.swing.JComponent ChessBoard;
     private javax.swing.JPanel ChessBoardPanel;
     private javax.swing.JCheckBox FlipBoard;
     private javax.swing.JButton Forward;

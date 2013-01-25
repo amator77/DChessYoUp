@@ -39,6 +39,8 @@ public interface Player {
     /** Return true if this player is a human player. */
     public boolean isHumanPlayer();
 
+    public boolean isRemotePlayer();
+    
     /**
      * Inform player whether or not to use an opening book.
      * Of course, a human player is likely to ignore this.

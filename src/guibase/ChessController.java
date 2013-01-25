@@ -27,6 +27,7 @@ import chess.MoveGen;
 import chess.Piece;
 import chess.Player;
 import chess.Position;
+import chess.RemotePlayer;
 import chess.Search;
 import chess.TextIO;
 import chess.UndoInfo;
@@ -43,8 +44,8 @@ import java.util.Scanner;
  * @author petero
  */
 public class ChessController {
-    Player humanPlayer;
-    ComputerPlayer computerPlayer;
+    Player localPlayer;
+    Player remotePlayer;
     Game game;
     GUIInterface gui;
     boolean humanIsWhite;
@@ -151,15 +152,13 @@ public class ChessController {
     public final void newGame(boolean humanIsWhite, int ttLogSize, boolean verbose) {
         stopComputerThinking();
         this.humanIsWhite = humanIsWhite;
-        humanPlayer = new HumanPlayer();
-        computerPlayer = new ComputerPlayer();
-        computerPlayer.verbose = verbose;
-        computerPlayer.setTTLogSize(ttLogSize);
-        computerPlayer.setListener(listener);
+        localPlayer = new HumanPlayer();
+        remotePlayer = new RemotePlayer();
+        
         if (humanIsWhite) {
-            game = new Game(humanPlayer, computerPlayer);
+            game = new Game(localPlayer, remotePlayer);
         } else {
-            game = new Game(computerPlayer, humanPlayer);
+            game = new Game(remotePlayer, localPlayer);
         }
     }
     public final void startGame() {
@@ -353,7 +352,7 @@ public class ChessController {
     }
     
     public final boolean humansTurn() {
-        return game.pos.whiteMove == humanIsWhite;
+        return true;//game.pos.whiteMove == humanIsWhite;
     }
     public final boolean computerThinking() {
         return computerThread != null;
@@ -406,7 +405,17 @@ public class ChessController {
             }
         }
     }
-
+    
+    public final void remoteMove(Move m) {
+        if (remotePlayer.isRemotePlayer()) {
+            if (doMove(m)) {
+                updateGUI();               
+            } else {
+                gui.setSelection(-1);
+            }
+        }
+    }
+    
     Move promoteMove;
     public final void reportPromotePiece(int choice) {
         final boolean white = game.pos.whiteMove;
@@ -498,39 +507,13 @@ public class ChessController {
     
     private void startComputerThinking() {
         if (game.pos.whiteMove != humanIsWhite) {
-            if (computerThread == null) {
-                Runnable run = new Runnable() {
-                    public void run() {
-                        computerPlayer.timeLimit(gui.timeLimit(), gui.timeLimit(), gui.randomMode());
-                        final String cmd = computerPlayer.getCommand(new Position(game.pos),
-                                game.haveDrawOffer(), game.getHistory());
-                        gui.runOnUIThread(new Runnable() {
-                            public void run() {
-                                game.processString(cmd);
-                                thinkingPV = "";
-                                updateGUI();
-                                setSelection();
-                                stopComputerThinking();
-                            }
-                        });
-                    }
-                };
-                if (threadStack > 0) {
-                    ThreadGroup tg = new ThreadGroup("searcher");
-                    computerThread = new Thread(tg, run, "searcher", threadStack);
-                } else {
-                    computerThread = new Thread(run);
-                }
-                thinkingPV = "";
-                updateGUI();
-                computerThread.start();
-            }
+            System.out.println("whiting for remote move");
         }
     }
 
     public synchronized void stopComputerThinking() {
         if (computerThread != null) {
-            computerPlayer.timeLimit(0, 0, false);
+            remotePlayer.timeLimit(0, 0, false);
             try {
                 computerThread.join();
             } catch (InterruptedException ex) {
@@ -543,7 +526,7 @@ public class ChessController {
 
     public synchronized void setTimeLimit() {
         if (computerThread != null) {
-            computerPlayer.timeLimit(gui.timeLimit(), gui.timeLimit(), gui.randomMode());
+            remotePlayer.timeLimit(gui.timeLimit(), gui.timeLimit(), gui.randomMode());
         }
     }
 }
