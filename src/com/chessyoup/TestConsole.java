@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -22,7 +21,8 @@ import javax.swing.JTabbedPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
-import com.gamelib.accounts.impl.GoogleChessAccount;
+import com.chess.account.GoogleChessAccount;
+import com.chessyoup.online.OnlineGame;
 import com.gamelib.application.Application;
 import com.gamelib.game.IChallenge;
 import com.gamelib.game.IGameControllerListener;
@@ -143,12 +143,14 @@ public class TestConsole implements IGameControllerListener {
 		fr.setVisible(true);
 	}
 	
+	static GoogleChessAccount googleAccount;
+	
 	public static void main(String[] args) throws Exception {
 		final TestConsole tcUI = new TestConsole();
 		
 		Application.configure("com.chessyoup.context.DesktopContext", null);
-//		final GoogleChessAccount googleAccount = new GoogleChessAccount("amator77@gmail.com","leo@1977");
-		final GoogleChessAccount googleAccount = new GoogleChessAccount("florea.leonard@gmail.com","mirela76");		
+//		googleAccount = new GoogleChessAccount("amator77@gmail.com","leo@1977");
+		googleAccount = new GoogleChessAccount("florea.leonard@gmail.com","mirela76");		
 		googleAccount.login(null);
 		googleAccount.getGameController().addGameControllerListener(tcUI);
 		
@@ -302,7 +304,7 @@ public class TestConsole implements IGameControllerListener {
 	@Override
 	public void challengeAccepted(IChallenge challenge) {
 		System.out.println("challange accepted :"+challenge.toString());
-		((DefaultListModel<IChallenge>)this.challangesList.getModel()).removeElement(challenge);
+		((DefaultListModel<IChallenge>)this.challangesList.getModel()).removeElement(challenge);		
 	}
 
 	@Override

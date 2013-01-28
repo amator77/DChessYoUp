@@ -18,17 +18,19 @@
 
 package gui;
 
-import guibase.ChessController;
-import guibase.GUIInterface;
+import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
-import chess.ComputerPlayer;
-import chess.Move;
-import chess.Position;
+import com.chess.ChessController;
+import com.chess.GUIInterface;
+import com.chess.GameMode;
+import com.chess.gamelogic.Move;
+import com.chess.gamelogic.Position;
+import com.chess.pgn.HTMLPGNText;
+import com.chess.pgn.PGNOptions;
+import com.chessyoup.ui.ChessBoardPainter;
 
 /**
  * The main class for the chess GUI.
@@ -41,17 +43,19 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     final static int ttLogSize = 19; // Use 2^19 hash entries.
     String moveListStr = "";
     String thinkingStr = "";
-
+    PGNOptions pgnOption = new PGNOptions() ; 
+    HTMLPGNText pgnTextView = new HTMLPGNText(pgnOption);
+    
     /** Initializes the applet AppletGUI */
     @Override
     public void init() {
-        ctrl = new ChessController(this);
+        ctrl = new ChessController(this,pgnTextView,pgnOption);
         try {
             java.awt.EventQueue.invokeAndWait(new Runnable() {
                 public void run() {
                     initComponents();
                     cbp = (ChessBoardPainter)ChessBoard;
-                    ctrl.newGame(PlayerWhite.isSelected(), ttLogSize, true);
+                    ctrl.newGame( new GameMode(GameMode.TWO_PLAYERS));
                     ctrl.startGame();
                 }
             });
@@ -66,7 +70,7 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     public static void main(String[] args){    	
         javax.swing.JApplet theApplet = new AppletGUI();
         theApplet.init();
-        javax.swing.JFrame window = new javax.swing.JFrame(ComputerPlayer.engineName);
+        javax.swing.JFrame window = new javax.swing.JFrame("title");
         window.setContentPane(theApplet);
         window.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
         window.pack();
@@ -168,7 +172,7 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
         ShowThinking.setFocusable(false);
         ShowThinking.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                ShowThinkingStateChanged(evt);
+//                ShowThinkingStateChanged(evt);
             }
         });
 
@@ -311,7 +315,7 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
             int sq = cbp.eventToSquare(evt);
             Move m = cbp.mousePressed(sq);
             if (m != null) {
-                ctrl.humanMove(m);
+                ctrl.makeHumanMove(m);
             }
         }
     }//GEN-LAST:event_ChessBoardMousePressed
@@ -321,16 +325,13 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     }//GEN-LAST:event_FlipBoardStateChanged
 
     private void NewGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewGameActionPerformed
-        ctrl.newGame(PlayerWhite.isSelected(), ttLogSize, true);
+        ctrl.newGame(new GameMode(GameMode.TWO_PLAYERS));        
         ctrl.startGame();
-    }//GEN-LAST:event_NewGameActionPerformed
+    }
 
-    private void ShowThinkingStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_ShowThinkingStateChanged
-        ctrl.setMoveList();
-    }//GEN-LAST:event_ShowThinkingStateChanged
-
+   
     private void BackwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BackwardActionPerformed
-        ctrl.takeBackMove();
+        ctrl.undoMove();
     }//GEN-LAST:event_BackwardActionPerformed
 
     private void ForwardActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ForwardActionPerformed
@@ -338,7 +339,7 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     }//GEN-LAST:event_ForwardActionPerformed
 
     private void TimeSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_TimeSliderStateChanged
-        ctrl.setTimeLimit();
+//        ctrl.setTimeLimit();
     }//GEN-LAST:event_TimeSliderStateChanged
 
     private void ChessBoardMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ChessBoardMouseDragged
@@ -352,7 +353,7 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
             int sq = cbp.eventToSquare(evt);
             Move m = cbp.mouseReleased(sq);
             if (m != null) {
-                ctrl.humanMove(m);
+                ctrl.makeHumanMove(m);
             }
         }
     }//GEN-LAST:event_ChessBoardMouseReleased
@@ -432,11 +433,59 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     }
 
     @Override
-    public boolean randomMode() {
-        return false;
-    }
-
-    @Override
     public void reportInvalidMove(Move m) {
     }
+
+	@Override
+	public void setPosition(Position pos, String variantInfo,
+			ArrayList<Move> variantMoves) {
+		this.cbp.setPosition(pos);
+	}
+
+	@Override
+	public void setStatus(GameStatus status) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void moveListUpdated() {	
+		LogTextArea.setText(pgnTextView.getHTMLData());
+	}
+
+	@Override
+	public void setRemainingTime(long wTime, long bTime, long nextUpdate) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setAnimMove(Position sourcePos, Move move, boolean forward) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public String whitePlayerName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String blackPlayerName() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean discardVariations() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public void remoteMoveMade() {
+		// TODO Auto-generated method stub
+		
+	}
 }
