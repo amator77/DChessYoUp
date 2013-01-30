@@ -23,23 +23,24 @@ import java.util.ArrayList;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
-import com.chess.ChessController;
-import com.chess.GUIInterface;
-import com.chess.GameMode;
-import com.chess.gamelogic.Move;
-import com.chess.gamelogic.Position;
-import com.chess.pgn.HTMLPGNText;
-import com.chess.pgn.PGNOptions;
-import com.chessyoup.ui.ChessBoardPainter;
+import com.cyp.chess.chessboard.ChessboardController;
+import com.cyp.chess.chessboard.ChessboardMode;
+import com.cyp.chess.chessboard.ChessboardStatus;
+import com.cyp.chess.chessboard.ChessboardUIInterface;
+import com.cyp.chess.model.Move;
+import com.cyp.chess.model.Position;
+import com.cyp.chess.model.pgn.HTMLPGNText;
+import com.cyp.chess.model.pgn.PGNOptions;
+import com.dcyp.chessboard.ChessBoardPainter;
 
 /**
  * The main class for the chess GUI.
  * @author petero
  */
-public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
+public class AppletGUI extends javax.swing.JApplet implements ChessboardUIInterface {
     private static final long serialVersionUID = 7357610346389734323L;
     ChessBoardPainter cbp;
-    ChessController ctrl;
+    ChessboardController ctrl;
     final static int ttLogSize = 19; // Use 2^19 hash entries.
     String moveListStr = "";
     String thinkingStr = "";
@@ -49,13 +50,13 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     /** Initializes the applet AppletGUI */
     @Override
     public void init() {
-        ctrl = new ChessController(this,pgnTextView,pgnOption);
+        ctrl = new ChessboardController(this,pgnTextView,pgnOption);
         try {
             java.awt.EventQueue.invokeAndWait(new Runnable() {
                 public void run() {
                     initComponents();
                     cbp = (ChessBoardPainter)ChessBoard;
-                    ctrl.newGame( new GameMode(GameMode.TWO_PLAYERS));
+                    ctrl.newGame( new ChessboardMode(ChessboardMode.ANALYSIS));
                     ctrl.startGame();
                 }
             });
@@ -311,11 +312,11 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     }// </editor-fold>//GEN-END:initComponents
 
     private void ChessBoardMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ChessBoardMousePressed
-        if (ctrl.humansTurn()) {
+        if (ctrl.localTurn()) {
             int sq = cbp.eventToSquare(evt);
             Move m = cbp.mousePressed(sq);
             if (m != null) {
-                ctrl.makeHumanMove(m);
+                ctrl.makeLocalMove(m);
             }
         }
     }//GEN-LAST:event_ChessBoardMousePressed
@@ -325,7 +326,7 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     }//GEN-LAST:event_FlipBoardStateChanged
 
     private void NewGameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_NewGameActionPerformed
-        ctrl.newGame(new GameMode(GameMode.TWO_PLAYERS));        
+        ctrl.newGame(new ChessboardMode(ChessboardMode.ANALYSIS));        
         ctrl.startGame();
     }
 
@@ -343,17 +344,17 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
     }//GEN-LAST:event_TimeSliderStateChanged
 
     private void ChessBoardMouseDragged(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ChessBoardMouseDragged
-        if (ctrl.humansTurn()) {
+        if (ctrl.localTurn()) {
             cbp.mouseDragged(evt);
         }
     }//GEN-LAST:event_ChessBoardMouseDragged
 
     private void ChessBoardMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_ChessBoardMouseReleased
-        if (ctrl.humansTurn()) {
+        if (ctrl.localTurn()) {
             int sq = cbp.eventToSquare(evt);
             Move m = cbp.mouseReleased(sq);
             if (m != null) {
-                ctrl.makeHumanMove(m);
+                ctrl.makeLocalMove(m);
             }
         }
     }//GEN-LAST:event_ChessBoardMouseReleased
@@ -442,11 +443,6 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
 		this.cbp.setPosition(pos);
 	}
 
-	@Override
-	public void setStatus(GameStatus status) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void moveListUpdated() {	
@@ -485,6 +481,18 @@ public class AppletGUI extends javax.swing.JApplet implements GUIInterface {
 
 	@Override
 	public void remoteMoveMade() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void setStatus(ChessboardStatus status) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void localMoveMade(Move m) {
 		// TODO Auto-generated method stub
 		
 	}
