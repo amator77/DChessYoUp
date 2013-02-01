@@ -479,11 +479,6 @@ public class AppletGUI extends javax.swing.JApplet implements ChessboardUIInterf
 		return false;
 	}
 
-	@Override
-	public void remoteMoveMade() {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public void setStatus(ChessboardStatus status) {

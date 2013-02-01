@@ -64,7 +64,7 @@ public class ChessBoardPainter extends JComponent {
 			System.exit(1);
 		}
 		
-		this.setPreferredSize(new Dimension(600,600));
+		this.setPreferredSize(new Dimension(200,200));
 	}
 
 	/**

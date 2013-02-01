@@ -2,6 +2,8 @@ package com.dcyp.game.ui;
 
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -22,6 +24,7 @@ import com.cyp.chess.chessboard.ChessboardStatus;
 import com.cyp.chess.chessboard.ChessboardUIInterface;
 import com.cyp.chess.game.ChessGame;
 import com.cyp.chess.game.ChessGameListener;
+import com.cyp.chess.model.Game.GameState;
 import com.cyp.chess.model.Move;
 import com.cyp.chess.model.Position;
 import com.cyp.chess.model.pgn.HTMLPGNText;
@@ -29,12 +32,13 @@ import com.cyp.chess.model.pgn.PGNOptions;
 import com.cyp.game.IGameCommand;
 import com.dcyp.chessboard.ChessBoardPainter;
 
-public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameListener{
+public class GameUI extends JPanel implements ChessboardUIInterface,
+		ChessGameListener, ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private ChessGame game;
-	
+
 	private ChessBoardPainter cbp;
 
 	private ChessboardController ctrl;
@@ -66,7 +70,11 @@ public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameL
 	private JTextPane chatArea;
 
 	private JTabbedPane tp;
-	
+
+	private boolean abortRequested;
+
+	private boolean drawRequested;
+
 	public GameUI(ChessGame game) {
 		this.game = game;
 		this.cbp = new ChessBoardPainter();
@@ -74,10 +82,14 @@ public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameL
 		this.pgnTextView = new HTMLPGNText(pgnOption);
 		this.ctrl = new ChessboardController(this, pgnTextView, pgnOption);
 		this.initUI();
-		this.installListeners();		
-		ctrl.newGame(new ChessboardMode(game.getChallenge().isReceived() ? ChessboardMode.TWO_PLAYERS_WHITE_REMOTE : ChessboardMode.TWO_PLAYERS_BLACK_REMOTE));
-		cbp.setFlipped(game.getChallenge().isReceived());
-		ctrl.startGame();
+		this.installListeners();
+
+		try {
+			game.sendReady();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public ChessboardController getController() {
@@ -91,9 +103,84 @@ public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameL
 	}
 
 	@Override
-	public void setSelection(int sq) {
-		// TODO Auto-generated method stub
+	public void actionPerformed(ActionEvent e) {
+		if (ctrl.getGame().getGameState() == GameState.ALIVE) {
+			if (e.getSource() == this.resignButton) {
+				ctrl.resignGame();
 
+				try {
+					game.resign();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			} else if (e.getSource() == this.abortButton) {
+				if (abortRequested) {
+					ctrl.abortGame();
+					moveListArea.setText(moveListArea.getText() + " aborted");
+					abortRequested = false;
+					try {
+						game.acceptAbortRequest();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+					try {
+						game.sendAbortRequest();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			} else if (e.getSource() == this.drawButton) {
+				if (drawRequested) {
+					ctrl.drawGame();
+					drawRequested = false;
+					try {
+						game.acceptDrawRequest();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				} else {
+					try {
+						ctrl.offerDraw();
+						game.sendDrawRequest();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}			
+			} else if (e.getSource() == this.exitButton) {
+				
+				if (JOptionPane.showConfirmDialog(null, "Exit and Resign?") == JOptionPane.OK_OPTION) {
+					try {
+						game.resign();
+						game.sendGameClosed();
+						ctrl.resignGame();
+						game.getAccount().getGameController()
+								.closeGame(this.game);
+						SwingUtilities.getWindowAncestor(this.cbp).dispose();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		} else {
+			if (e.getSource() == this.exitButton) {
+				try {
+					game.sendGameClosed();
+					ctrl.abortGame();
+					game.getAccount().getGameController().closeGame(this.game);
+					SwingUtilities.getWindowAncestor(this.cbp).dispose();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+			else if (e.getSource() == this.rematchButton) {
+				try {
+					game.sendRematchRequest();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -125,21 +212,6 @@ public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameL
 	}
 
 	@Override
-	public void reportInvalidMove(Move m) {
-
-	}
-
-	@Override
-	public void setRemainingTime(long wTime, long bTime, long nextUpdate) {
-
-	}
-
-	@Override
-	public void setAnimMove(Position sourcePos, Move move, boolean forward) {
-
-	}
-
-	@Override
 	public String whitePlayerName() {
 		return this.game.getWhitePlayer();
 	}
@@ -152,11 +224,6 @@ public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameL
 	@Override
 	public boolean discardVariations() {
 		return false;
-	}
-
-	@Override
-	public void remoteMoveMade() {
-
 	}
 
 	private void initUI() {
@@ -197,7 +264,11 @@ public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameL
 
 	private void installListeners() {
 		this.game.addGameListener(this);
-		
+		this.resignButton.addActionListener(this);
+		this.drawButton.addActionListener(this);
+		this.abortButton.addActionListener(this);
+		this.exitButton.addActionListener(this);
+
 		cbp.addMouseListener(new java.awt.event.MouseAdapter() {
 			public void mousePressed(java.awt.event.MouseEvent evt) {
 				if (ctrl.localTurn()) {
@@ -205,15 +276,8 @@ public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameL
 					Move m = cbp.mousePressed(sq);
 					if (m != null) {
 						ctrl.makeLocalMove(m);
-						try {
-							game.sendMove(m);
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 					}
-				}				
-				
+				}
 			}
 
 			public void mouseReleased(java.awt.event.MouseEvent evt) {
@@ -222,16 +286,11 @@ public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameL
 					Move m = cbp.mouseReleased(sq);
 					if (m != null) {
 						ctrl.makeLocalMove(m);
-						try {
-							game.sendMove(m);
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
 					}
 				}
 			}
 		});
+
 		cbp.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
 			public void mouseDragged(java.awt.event.MouseEvent evt) {
 				if (ctrl.localTurn()) {
@@ -241,101 +300,122 @@ public class GameUI extends JPanel implements ChessboardUIInterface , ChessGameL
 		});
 	}
 
-	public static void main(String[] args) throws Exception{
+	@Override
+	public void setStatus(ChessboardStatus status) {
+
+	}
+
+	@Override
+	public void localMoveMade(Move m) {
+		try {
+			game.sendMove(m);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void readyReceived() {
+		ctrl.newGame(new ChessboardMode(
+				game.getChallenge().isReceived() ? ChessboardMode.TWO_PLAYERS_WHITE_REMOTE
+						: ChessboardMode.TWO_PLAYERS_BLACK_REMOTE));
+		cbp.setFlipped(game.getChallenge().isReceived());
+		ctrl.startGame();
+	}
+
+	@Override
+	public void resignReceived() {
+		ctrl.makeRemoteMove("resign");
+	}
+
+	@Override
+	public void chatReceived(String text) {
+		this.chatArea.setText(this.chatArea.getText() + "\n" + text);
+	}
+
+	@Override
+	public void moveReceived(final String move) {
+
+		runOnUIThread(new Runnable() {
+
+			@Override
+			public void run() {
+				ctrl.makeRemoteMove(move);
+			}
+		});
+	}
+
+	@Override
+	public void drawRequestReceived() {
+		this.drawRequested = true;
+		ctrl.offerDraw();
+	}
+
+	@Override
+	public void drawAcceptedReceived() {
+		ctrl.drawGame();
+	}
+
+	@Override
+	public void abortRequestReceived() {
+		this.abortRequested = true;
+		moveListArea.setText(moveListArea.getText() + " abort requested!");
+	}
+
+	@Override
+	public void abortAcceptedReceived() {
+		ctrl.abortGame();
+		moveListArea.setText(moveListArea.getText() + " abort accepted");
+	}
+
+	@Override
+	public void rematchRequestReceived() {
+
+		if (JOptionPane.showConfirmDialog(null, "Rematch?") == JOptionPane.OK_OPTION) {
+			try {
+				this.readyReceived();
+				game.sendReady();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	@Override
+	public void gameClosedReceived() {
+		moveListArea.setText(moveListArea.getText() + " opponent leaved!");
+	}
+
+	@Override
+	public void reportInvalidMove(Move m) {
+
+	}
+
+	@Override
+	public void setRemainingTime(long wTime, long bTime, long nextUpdate) {
+
+	}
+
+	@Override
+	public void setAnimMove(Position sourcePos, Move move, boolean forward) {
+
+	}
+
+	@Override
+	public void commandReceived(IGameCommand command) {
+	}
+
+	@Override
+	public void setSelection(int sq) {
+
+	}
+
+	public static void main(String[] args) throws Exception {
 		UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		JFrame fr = new JFrame();
 		fr.setContentPane(new GameUI(null));
 		fr.pack();
 		fr.setVisible(true);
 		fr.setDefaultCloseOperation(3);
-	}
-
-	@Override
-	public void setStatus(ChessboardStatus status) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void localMoveMade(Move m) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void commandReceived(IGameCommand command) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void readyReceived() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void resignReceived() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void chatReceived(String text) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void moveReceived(final String move) {
-		runOnUIThread(new Runnable() {
-			
-			@Override
-			public void run() {
-				ctrl.makeRemoteMove(move);				
-			}
-		});		
-	}
-
-	@Override
-	public void drawRequestReceived() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void drawAcceptedReceived() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void abortRequestReceived() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void abortAcceptedReceived() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void rematchRequestReceived() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void rematchAcceptedReceived() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void gameClosedReceived() {
-		// TODO Auto-generated method stub
-		
 	}
 }
