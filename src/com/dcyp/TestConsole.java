@@ -23,7 +23,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import com.cyp.application.Application;
-import com.cyp.chess.account.BasicGTalkAccount;
+import com.cyp.chess.account.GTalkAccount;
 import com.cyp.game.IChallenge;
 import com.cyp.game.IGameControllerListener;
 import com.cyp.transport.Contact;
@@ -144,15 +144,15 @@ public class TestConsole implements IGameControllerListener {
 		fr.setVisible(true);
 	}
 	
-	static BasicGTalkAccount googleAccount;
+	static GTalkAccount googleAccount;
 	
 	public static void main(String[] args) throws Exception {
 		UIManager.setLookAndFeel("javax.swing.plaf.nimbus.NimbusLookAndFeel");
 		final TestConsole tcUI = new TestConsole();
 		
 		Application.configure("com.dcyp.context.DesktopContext", null);
-		googleAccount = new BasicGTalkAccount("amator77@gmail.com","leo@1977");
-//		googleAccount = new BasicGTalkAccount("florea.leonard@gmail.com","mirela76");		
+//		googleAccount = new GTalkAccount("amator77@gmail.com","leo@1977");
+		googleAccount = new GTalkAccount("florea.leonard@gmail.com","mirela76");		
 		googleAccount.login(null);
 		googleAccount.getGameController().addGameControllerListener(tcUI);
 		
