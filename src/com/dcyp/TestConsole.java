@@ -262,6 +262,29 @@ public class TestConsole implements IGameControllerListener {
 					}
 				});
 			}
+
+			@Override
+			public void contactUpdated(Contact contact) {
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						DefaultListModel<Contact> model = (DefaultListModel<Contact>)tcUI.contactsList.getModel();
+						model.clear();
+						
+						for(Contact contact : googleAccount.getRoster().getContacts() ){
+							((DefaultListModel<Contact>)tcUI.contactsList.getModel()).addElement(contact);
+						}				
+					}
+				});
+				
+			}
+
+			@Override
+			public void contactDisconected(Contact contact) {
+				// TODO Auto-generated method stub
+				
+			}
 		});
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));

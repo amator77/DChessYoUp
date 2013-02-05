@@ -52,4 +52,11 @@ public class DesktopContext implements Context {
 	public PLATFORM getPlatform() {
 		return PLATFORM.DESKTOP_JAVA;
 	}
+
+	@Override
+	public List<String> getApplicationFutures() {
+		List<String> futures = new ArrayList<String>();
+		futures.add("http://jabber.org/protocol/games/chess/v1");		
+		return futures;
+	}
 }
