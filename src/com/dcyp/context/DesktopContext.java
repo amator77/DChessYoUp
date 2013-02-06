@@ -59,4 +59,12 @@ public class DesktopContext implements Context {
 		futures.add("http://jabber.org/protocol/games/chess/v1");		
 		return futures;
 	}
+
+	@Override
+	public void registerAccount(Account account) { 
+	}
+
+	@Override
+	public void removeAccount(Account account) {
+	}
 }
