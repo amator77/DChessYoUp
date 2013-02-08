@@ -83,7 +83,7 @@ public class TestConsole implements IGameControllerListener {
 					boolean isSelected, boolean cellHasFocus) {
 					
 				lab.setOpaque(true);
-				lab.setText(value.getRemoteId()+","+value.getTime());
+				lab.setText(value.getRemoteContact()+","+value.getTime());
 				
 				if( isSelected ){
 					lab.setBackground(Color.CYAN);
@@ -177,7 +177,7 @@ public class TestConsole implements IGameControllerListener {
 				
 				if( selectedContact != null ){
 					try {
-						((DefaultListModel<IChallenge>)tcUI.challangesList.getModel()).addElement( googleAccount.getGameController().sendChallenge(selectedContact.getId(), null) );						
+						((DefaultListModel<IChallenge>)tcUI.challangesList.getModel()).addElement( googleAccount.getGameController().sendChallenge(selectedContact, null) );						
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
@@ -309,7 +309,7 @@ public class TestConsole implements IGameControllerListener {
 				break;
 				case "challenge": {
 					String to = parts[1];										
-					googleAccount.getGameController().sendChallenge(to, null);
+//					googleAccount.getGameController().sendChallenge(to, null);
 				}
 				break;
 				
