@@ -151,8 +151,8 @@ public class TestConsole implements IGameControllerListener {
 		final TestConsole tcUI = new TestConsole();
 		
 		Application.configure("com.dcyp.context.DesktopContext", null);
-//		googleAccount = new GTalkAccount("amator77@gmail.com","leo@1977");
-		googleAccount = new GTalkAccount("florea.leonard@gmail.com","mirela76");		
+		googleAccount = new GTalkAccount("amator77@gmail.com","leo@1977");
+//		googleAccount = new GTalkAccount("florea.leonard@gmail.com","mirela76");		
 		googleAccount.login(null);
 		googleAccount.getGameController().addGameControllerListener(tcUI);
 		
