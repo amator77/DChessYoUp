@@ -86,8 +86,7 @@ public class GameUI extends JPanel implements ChessboardUIInterface,
 
 		try {
 			game.sendReady();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+		} catch (IOException e) {			
 			e.printStackTrace();
 		}
 	}
@@ -96,13 +95,11 @@ public class GameUI extends JPanel implements ChessboardUIInterface,
 		return this.ctrl;
 	}
 
-	@Override
 	public void setPosition(Position pos, String variantInfo,
 			ArrayList<Move> variantMoves) {
 		cbp.setPosition(pos);
 	}
 
-	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (ctrl.getGame().getGameState() == GameState.ALIVE) {
 			if (e.getSource() == this.resignButton) {
@@ -183,17 +180,17 @@ public class GameUI extends JPanel implements ChessboardUIInterface,
 		}
 	}
 
-	@Override
+	
 	public void moveListUpdated() {
 		this.moveListArea.setText(this.pgnTextView.getHTMLData());
 
 	}
 
-	@Override
+	
 	public void requestPromotePiece() {
 		SwingUtilities.invokeLater(new Runnable() {
 
-			@Override
+			
 			public void run() {
 				Object[] options = { "Queen", "Rook", "Bishop", "Knight" };
 				int choice = JOptionPane
@@ -206,22 +203,22 @@ public class GameUI extends JPanel implements ChessboardUIInterface,
 		});
 	}
 
-	@Override
+	
 	public void runOnUIThread(Runnable runnable) {
 		SwingUtilities.invokeLater(runnable);
 	}
 
-	@Override
+	
 	public String whitePlayerName() {
 		return this.game.getWhitePlayer();
 	}
 
-	@Override
+	
 	public String blackPlayerName() {
 		return this.game.getBlackPlayer();
 	}
 
-	@Override
+	
 	public boolean discardVariations() {
 		return false;
 	}
@@ -300,12 +297,12 @@ public class GameUI extends JPanel implements ChessboardUIInterface,
 		});
 	}
 
-	@Override
+	
 	public void setStatus(ChessboardStatus status) {
 
 	}
 
-	@Override
+	
 	public void localMoveMade(Move m) {
 		try {
 			game.sendMove(m);
@@ -314,7 +311,7 @@ public class GameUI extends JPanel implements ChessboardUIInterface,
 		}
 	}
 
-	@Override
+	
 	public void readyReceived() {
 		ctrl.newGame(new ChessboardMode(
 				game.getChallenge().isReceived() ? ChessboardMode.TWO_PLAYERS_WHITE_REMOTE
@@ -323,52 +320,52 @@ public class GameUI extends JPanel implements ChessboardUIInterface,
 		ctrl.startGame();
 	}
 
-	@Override
+	
 	public void resignReceived() {
 		ctrl.makeRemoteMove("resign");
 	}
 
-	@Override
+	
 	public void chatReceived(String text) {
 		this.chatArea.setText(this.chatArea.getText() + "\n" + text);
 	}
 
-	@Override
+	
 	public void moveReceived(final String move) {
 
 		runOnUIThread(new Runnable() {
 
-			@Override
+			
 			public void run() {
 				ctrl.makeRemoteMove(move);
 			}
 		});
 	}
 
-	@Override
+	
 	public void drawRequestReceived() {
 		this.drawRequested = true;
 		ctrl.offerDraw();
 	}
 
-	@Override
+	
 	public void drawAcceptedReceived() {
 		ctrl.drawGame();
 	}
 
-	@Override
+	
 	public void abortRequestReceived() {
 		this.abortRequested = true;
 		moveListArea.setText(moveListArea.getText() + " abort requested!");
 	}
 
-	@Override
+	
 	public void abortAcceptedReceived() {
 		ctrl.abortGame();
 		moveListArea.setText(moveListArea.getText() + " abort accepted");
 	}
 
-	@Override
+	
 	public void rematchRequestReceived() {
 
 		if (JOptionPane.showConfirmDialog(null, "Rematch?") == JOptionPane.OK_OPTION) {
@@ -381,31 +378,31 @@ public class GameUI extends JPanel implements ChessboardUIInterface,
 		}
 	}
 
-	@Override
+	
 	public void gameClosedReceived() {
 		moveListArea.setText(moveListArea.getText() + " opponent leaved!");
 	}
 
-	@Override
+	
 	public void reportInvalidMove(Move m) {
 
 	}
 
-	@Override
+	
 	public void setRemainingTime(long wTime, long bTime, long nextUpdate) {
 
 	}
 
-	@Override
+	
 	public void setAnimMove(Position sourcePos, Move move, boolean forward) {
 
 	}
 
-	@Override
+	
 	public void commandReceived(IGameCommand command) {
 	}
 
-	@Override
+	
 	public void setSelection(int sq) {
 
 	}

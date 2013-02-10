@@ -54,8 +54,7 @@ public class TestConsole implements IGameControllerListener {
 		
 		contactsList.setCellRenderer(new ListCellRenderer<Contact>() {
 			JLabel lab = new JLabel();
-			
-			@Override
+						
 			public Component getListCellRendererComponent(
 					JList<? extends Contact> list, Contact value, int index,
 					boolean isSelected, boolean cellHasFocus) {
@@ -77,7 +76,7 @@ public class TestConsole implements IGameControllerListener {
 		challangesList.setCellRenderer(new ListCellRenderer<IChallenge>() {
 			JLabel lab = new JLabel();
 			
-			@Override
+			
 			public Component getListCellRendererComponent(
 					JList<? extends IChallenge> list, IChallenge value, int index,
 					boolean isSelected, boolean cellHasFocus) {
@@ -160,7 +159,7 @@ public class TestConsole implements IGameControllerListener {
 		
 		SwingUtilities.invokeLater(new Runnable() {
 			
-			@Override
+			
 			public void run() {
 				for(Contact contact : googleAccount.getRoster().getContacts() ){
 					System.out.println("aici"+contact.toString());
@@ -171,7 +170,7 @@ public class TestConsole implements IGameControllerListener {
 		
 		tcUI.mItem.addActionListener(new ActionListener() {
 			
-			@Override
+			
 			public void actionPerformed(ActionEvent e) {
 				Contact selectedContact = tcUI.contactsList.getSelectedValue();
 				
@@ -187,7 +186,7 @@ public class TestConsole implements IGameControllerListener {
 		
 		tcUI.mItemAccept.addActionListener(new ActionListener() {
 			
-			@Override
+			
 			public void actionPerformed(ActionEvent e) {
 				IChallenge selectedChalange = tcUI.challangesList.getSelectedValue();
 				
@@ -212,7 +211,7 @@ public class TestConsole implements IGameControllerListener {
 		
 		tcUI.mItemCancel.addActionListener(new ActionListener() {
 			
-			@Override
+			
 			public void actionPerformed(ActionEvent e) {
 				IChallenge selectedChalange = tcUI.challangesList.getSelectedValue();
 				
@@ -229,7 +228,7 @@ public class TestConsole implements IGameControllerListener {
 		
 		tcUI.mItemReject.addActionListener(new ActionListener() {
 			
-			@Override
+			
 			public void actionPerformed(ActionEvent e) {
 				IChallenge selectedChalange = tcUI.challangesList.getSelectedValue();
 				
@@ -246,12 +245,12 @@ public class TestConsole implements IGameControllerListener {
 		
 		googleAccount.getRoster().addListener(new RosterListener() {
 			
-			@Override
+			
 			public void presenceChanged(Presence presence) {
 								
 				SwingUtilities.invokeLater(new Runnable() {
 					
-					@Override
+					
 					public void run() {
 						DefaultListModel<Contact> model = (DefaultListModel<Contact>)tcUI.contactsList.getModel();
 						model.clear();
@@ -263,11 +262,11 @@ public class TestConsole implements IGameControllerListener {
 				});
 			}
 
-			@Override
+			
 			public void contactUpdated(Contact contact) {
 				SwingUtilities.invokeLater(new Runnable() {
 					
-					@Override
+					
 					public void run() {
 						DefaultListModel<Contact> model = (DefaultListModel<Contact>)tcUI.contactsList.getModel();
 						model.clear();
@@ -280,59 +279,29 @@ public class TestConsole implements IGameControllerListener {
 				
 			}
 
-			@Override
+			
 			public void contactDisconected(Contact contact) {
 				// TODO Auto-generated method stub
 				
 			}
 		});
 		
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		String commandLine = null;
 
-		while (true) {
-			commandLine = br.readLine();
-			
-			if (commandLine == null || commandLine.equals("exit")) {
-				Application.getContext().listAccounts().get(0).logout();
-				System.exit(0);
-			} else {
-				String parts[] = commandLine.split(",");
-
-				switch (parts[0]) {
-				case "chat": {
-					String to = parts[1];
-					String body = parts[2];
-					ChatMessage chat = new ChatMessage(to,body);
-					googleAccount.getConnection().sendMessage(chat);
-				}
-				break;
-				case "challenge": {
-					String to = parts[1];										
-//					googleAccount.getGameController().sendChallenge(to, null);
-				}
-				break;
-				
-				default:
-					break;
-				}
-			}
-		}
 	}
 
-	@Override
+	
 	public void challengeReceived(IChallenge challenge) {		
 		System.out.println("challange received :"+challenge.toString());
 		((DefaultListModel<IChallenge>)this.challangesList.getModel()).addElement(challenge);
 	}
 
-	@Override
+	
 	public void challengeCanceled(IChallenge challenge) {
 		System.out.println("challange canceled :"+challenge.toString());
 		((DefaultListModel<IChallenge>)this.challangesList.getModel()).removeElement(challenge);
 	}
 
-	@Override
+	
 	public void challengeAccepted(IChallenge challenge) {
 		System.out.println("challange accepted :"+challenge.toString());
 		((DefaultListModel<IChallenge>)this.challangesList.getModel()).removeElement(challenge);
@@ -344,7 +313,7 @@ public class TestConsole implements IGameControllerListener {
 		fr.setVisible(true);		
 	}
 
-	@Override
+	
 	public void challengeRejected(IChallenge challenge) {
 		System.out.println("challange rejected :"+challenge.toString());
 		((DefaultListModel<IChallenge>)this.challangesList.getModel()).removeElement(challenge);
