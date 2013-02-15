@@ -3,6 +3,7 @@ package com.dcyp.game.ui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.IOException;
+import java.util.List;
 
 import javax.swing.JApplet;
 import javax.swing.UIManager;
@@ -10,6 +11,8 @@ import javax.swing.UIManager;
 import com.cyp.accounts.Account;
 import com.cyp.application.Application;
 import com.cyp.chess.account.GTalkAccount;
+import com.cyp.transport.Room;
+import com.cyp.transport.Util;
 import com.dcyp.task.Task;
 
 public class AppletUI extends JApplet {
@@ -40,7 +43,7 @@ public class AppletUI extends JApplet {
 	}
 
 	public void init() {
-		final GTalkAccount googleAccount = new GTalkAccount("amator77@gmail.com","leo@1977");
+		final GTalkAccount googleAccount = new GTalkAccount("florea.leonard@gmail.com","mirela76");
 		
 		googleAccount.login(new Account.LoginCallback() {
 			
@@ -84,6 +87,14 @@ public class AppletUI extends JApplet {
 						}							
 					}
 				});
+				
+				googleAccount.getConnection().getRoomsManager().initialize();
+				List<? extends Room> rooms = googleAccount.getConnection().getRoomsManager().listRooms();
+				
+				for( Room room : rooms ){
+					room.join(Util.getUsernameFromId(googleAccount.getId()));
+					mainUI.getRoomUI().setRoom(room);
+				}
 			}
 			
 			public void onLogginError(String errorMessage) {								

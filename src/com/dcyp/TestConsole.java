@@ -6,9 +6,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.util.Collection;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
@@ -22,6 +21,11 @@ import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import org.jivesoftware.smack.PacketListener;
+import org.jivesoftware.smack.packet.Packet;
+import org.jivesoftware.smack.provider.ProviderManager;
+import org.jivesoftware.smackx.muc.MultiUserChat;
+
 import com.cyp.application.Application;
 import com.cyp.chess.account.GTalkAccount;
 import com.cyp.game.IChallenge;
@@ -29,7 +33,7 @@ import com.cyp.game.IGameControllerListener;
 import com.cyp.transport.Contact;
 import com.cyp.transport.Presence;
 import com.cyp.transport.RosterListener;
-import com.cyp.transport.impl.ChatMessage;
+import com.cyp.transport.xmpp.XMPPGenericConnection;
 import com.dcyp.game.ui.GameUI;
 
 public class TestConsole implements IGameControllerListener {
@@ -286,7 +290,31 @@ public class TestConsole implements IGameControllerListener {
 			}
 		});
 		
-
+		
+		
+		
+		
+		MultiUserChat muc = new MultiUserChat( ((XMPPGenericConnection)googleAccount.getConnection()).getXmppConnection(), "chessyoupmainroom@conference.jabber.org");
+		muc.join("nickname1");
+		
+		muc.addMessageListener(new PacketListener() {
+			
+			@Override
+			public void processPacket(Packet arg0) {
+				System.out.println("new message in the room");
+				
+			}
+		});
+		
+		muc.addParticipantListener(new PacketListener() {
+			
+			@Override
+			public void processPacket(Packet arg0) {
+				System.out.println("participant event");
+				
+			}
+		});
+		
 	}
 
 	

@@ -5,6 +5,7 @@ import java.awt.Dimension;
 
 import javax.swing.JComponent;
 import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
 import javax.swing.SwingUtilities;
 
 import com.cyp.game.IChallenge;
@@ -24,20 +25,31 @@ public class MainUI extends JComponent implements IGameControllerListener {
 	
 	private JSplitPane splitPane;
 	
+	private RoomUI roomUI;
+	
+	public RoomUI getRoomUI() {
+		return roomUI;
+	}
+
 	public MainUI(){
 		this.initUI();
 	}
 
 	private void initUI() {
-		this.rosterUI = new RosterUI();
+		this.rosterUI = new RosterUI();		
 		this.challengesUI = new ChallengesUI();
+		this.roomUI = new RoomUI(null);
 		this.splitPane = new JSplitPane();
 		this.setLayout(new BorderLayout());
-		this.add(this.splitPane,BorderLayout.CENTER);
-		this.splitPane.setLeftComponent(this.rosterUI);
-		this.splitPane.setRightComponent(this.challengesUI);
-		this.setPreferredSize(new Dimension(600,600));
+		this.add(this.splitPane,BorderLayout.CENTER);		
 		
+		JTabbedPane tp = new JTabbedPane();
+		tp.add("Main Room",this.roomUI);
+		tp.add("Challenges",this.challengesUI);
+		
+		this.splitPane.setLeftComponent(this.rosterUI);
+		this.splitPane.setRightComponent(tp);
+		this.setPreferredSize(new Dimension(600,600));
 	}
 	
 	public void setBounds(int x , int y , int w , int h){

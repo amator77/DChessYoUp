@@ -67,4 +67,8 @@ public class DesktopContext implements Context {
 	
 	public void removeAccount(Account account) {
 	}
+	
+	public String getGameBaseURL() {
+		return "http://api.chessyoup.com";
+	}
 }
